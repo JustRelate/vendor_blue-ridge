@@ -1,3 +1,5 @@
+require File.expand_path(File.dirname(__FILE__) + '/work_queue')
+
 module BlueRidge
   JavaScriptSpecDirs = ["examples/javascripts", "spec/javascripts", "test/javascript"]
   
@@ -34,7 +36,8 @@ module BlueRidge
   end
   
   def self.run_spec(spec_filename)
-    system("#{test_runner_command} #{spec_filename}")
+    puts `#{test_runner_command} #{spec_filename}`
+    $?.success?
   end
   
   def self.run_specs_in_dir(spec_dir, spec_name = nil)
@@ -45,6 +48,14 @@ module BlueRidge
   
   def self.run_specs(spec_name = nil)
     specs = spec_name.nil? ? find_specs_under_current_dir : ["#{spec_name}_spec.js"]
-    all_fine = specs.inject(true) {|result, spec| result &= run_spec(spec) }
+    all_fine = true
+    WorkQueue.worker(2) do |task|
+      specs.each do |spec|
+        task.create do
+          all_fine &= run_spec(spec)
+        end
+      end
+    end
+    all_fine
   end
 end

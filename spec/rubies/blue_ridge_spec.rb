@@ -75,7 +75,8 @@ describe BlueRidge do
   describe "running a specific spec" do
     it "runs the test runner command against the given spec filename in a separate process" do
       BlueRidge.stubs(:test_runner_command).returns("some_test_runner_command")
-      BlueRidge.expects(:system).with("some_test_runner_command some_spec_file").returns(:some_value)
+      BlueRidge.expects("`").with("some_test_runner_command some_spec_file")
+      $?.expects("success?").returns(:some_value)
       BlueRidge.run_spec("some_spec_file").should == :some_value
     end
   end
