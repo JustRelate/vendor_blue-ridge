@@ -1,0 +1,1 @@
+../../../vendor/smoke/spec/stub_spec.js

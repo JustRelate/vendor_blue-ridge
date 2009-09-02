@@ -1,1 +1,0 @@
-../../vendor/smoke/spec/core_spec.js

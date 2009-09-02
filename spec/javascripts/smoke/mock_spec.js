@@ -1,0 +1,1 @@
+../../../vendor/smoke/spec/mock_spec.js
