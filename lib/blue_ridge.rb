@@ -35,26 +35,23 @@ module BlueRidge
     Dir.glob("**/*_spec.js")
   end
   
-  def self.run_spec(spec_filename)
-    puts `#{test_runner_command} #{spec_filename}`
-    $?.success?
+  def self.execute_specs(spec_filenames)
+    system("#{test_runner_command} \"#{spec_filenames.join('" "')}\"")
   end
-  
+
   def self.run_specs_in_dir(spec_dir, spec_name = nil)
     result = nil
     Dir.chdir(spec_dir) { result = run_specs(spec_name) }
     result
   end
-  
+
   def self.run_specs(spec_name = nil)
     specs = spec_name.nil? ? find_specs_under_current_dir : ["#{spec_name}_spec.js"]
     all_fine = true
     WorkQueue.worker(2) do |task|
-      specs.each do |spec|
-        task.create do
-          all_fine &= run_spec(spec)
-        end
-      end
+      half = specs.length / 2
+      task.create { all_fine &= execute_specs(specs[0..half]) }
+      task.create { all_fine &= execute_specs(specs[half..specs.length]) }
     end
     all_fine
   end
