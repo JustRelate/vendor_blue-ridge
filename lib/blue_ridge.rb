@@ -49,9 +49,9 @@ module BlueRidge
     specs = spec_name.nil? ? find_specs_under_current_dir : ["#{spec_name}_spec.js"]
     all_fine = true
     WorkQueue.worker(2) do |task|
-      half = specs.length / 2
-      task.create { all_fine &= execute_specs(specs[0..half]) }
-      task.create { all_fine &= execute_specs(specs[half..specs.length]) }
+      specs.each_slice(8) do |some_specs|
+        task.create { all_fine &= execute_specs(some_specs) }
+      end
     end
     all_fine
   end
