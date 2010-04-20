@@ -50,7 +50,10 @@ module BlueRidge
     all_fine = true
     WorkQueue.worker(2) do |task|
       specs.each_slice(8) do |some_specs|
-        task.create { all_fine &= execute_specs(some_specs) }
+        task.create do
+          success = execute_specs(some_specs)
+          all_fine = false unless success
+        end
       end
     end
     all_fine
